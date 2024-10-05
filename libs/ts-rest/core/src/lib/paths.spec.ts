@@ -92,4 +92,38 @@ describe('insertParamsIntoPath', () => {
 
     expect(result).toBe('/1');
   });
+
+  it('should insert optional params into path with many params', () => {
+    const path = '/post/:id?/comments/:commentId?/:commentId2?';
+
+    const params = {
+      commentId: '2',
+      commentId2: '3',
+      id: '1',
+    };
+
+    const result = insertParamsIntoPath({ path, params });
+
+    expect(result).toBe('/post/1/comments/2/3');
+  });
+
+  it('should insert optional params into path with no params', () => {
+    const path = '/post/:id?/comments/:commentId?/:commentId2?';
+
+    const result = insertParamsIntoPath({ path, params: {} });
+
+    expect(result).toBe('/post/comments/');
+  });
+
+  it('should insert optional params into paths with only one param', () => {
+    const path = '/:id?';
+
+    const params = {
+      id: '1',
+    };
+
+    const result = insertParamsIntoPath({ path, params });
+
+    expect(result).toBe('/1');
+  });
 });
