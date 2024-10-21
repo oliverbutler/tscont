@@ -17,18 +17,18 @@ import { DataResponse, ErrorResponse, queryFn } from './common';
 export type DataReturnMutation<
   TAppRoute extends AppRoute,
   TClientArgs extends ClientArgs,
-> = (
+> = <TContext>(
   options?: MutationOptions<
     DataResponse<TAppRoute>,
     ErrorResponse<TAppRoute>,
     PartialClientInferRequest<TAppRoute, TClientArgs>,
-    unknown
+    TContext
   >,
 ) => UseMutationReturnType<
   DataResponse<TAppRoute>,
   ErrorResponse<TAppRoute>,
   PartialClientInferRequest<TAppRoute, TClientArgs>,
-  unknown
+  TContext
 >;
 
 export const getRouteUseMutation =

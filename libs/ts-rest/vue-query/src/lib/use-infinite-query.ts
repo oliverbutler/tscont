@@ -1,6 +1,5 @@
 import { useInfiniteQuery } from '@tanstack/vue-query';
 import type {
-  QueryFunction,
   QueryFunctionContext,
   QueryKey,
   UseInfiniteQueryOptions,
@@ -19,15 +18,16 @@ import { DataResponse, ErrorResponse, queryFn } from './common';
 export type DataReturnInfiniteQuery<
   TAppRoute extends AppRoute,
   TClientArgs extends ClientArgs,
-> = <TData = DataResponse<TAppRoute>>(
-  queryKey: QueryKey,
+> = <TData = DataResponse<TAppRoute>, TQueryKey extends QueryKey = QueryKey>(
+  queryKey: TQueryKey,
   args: (
-    context: QueryFunctionContext,
+    context: QueryFunctionContext<TQueryKey>,
   ) => PartialClientInferRequest<TAppRoute, TClientArgs>,
   options?: UseInfiniteQueryOptions<
     DataResponse<TAppRoute>,
     ErrorResponse<TAppRoute>,
-    TData
+    TData,
+    TQueryKey
   >,
 ) => UseInfiniteQueryReturnType<TData, ErrorResponse<TAppRoute>>;
 
@@ -43,13 +43,7 @@ export const getRouteUseInfiniteQuery =
     ) => ClientInferRequest<AppRouteMutation, ClientArgs>,
     options?: UseInfiniteQueryOptions<DataResponse<TAppRoute>>,
   ) => {
-    const dataFn: QueryFunction<DataResponse<TAppRoute>> = async (context) => {
-      const resultingQueryArgs = argsMapper(context);
-
-      const innerDataFn = queryFn(route, clientArgs, resultingQueryArgs);
-
-      return innerDataFn(undefined as any);
-    };
+    const dataFn = queryFn(route, clientArgs, argsMapper);
 
     return useInfiniteQuery({
       queryKey,

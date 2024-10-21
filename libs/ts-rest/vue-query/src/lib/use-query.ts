@@ -21,22 +21,24 @@ export type DataReturnQuery<
   TClientArgs extends ClientArgs,
   TArgs = PartialClientInferRequest<TAppRoute, TClientArgs>,
 > = AreAllPropertiesOptional<TArgs> extends true
-  ? <TData = DataResponse<TAppRoute>>(
-      queryKey: QueryKey,
-      args?: (context: QueryFunctionContext<QueryKey>) => TArgs,
+  ? <TData = DataResponse<TAppRoute>, TQueryKey extends QueryKey = QueryKey>(
+      queryKey: TQueryKey,
+      args?: (context: QueryFunctionContext<TQueryKey>) => TArgs,
       options?: UseQueryOptions<
         DataResponse<TAppRoute>,
         ErrorResponse<TAppRoute>,
-        TData
+        TData,
+        TQueryKey
       >,
     ) => UseQueryReturnType<TData, ErrorResponse<TAppRoute>>
-  : <TData = DataResponse<TAppRoute>>(
-      queryKey: QueryKey,
-      args: (context: QueryFunctionContext<QueryKey>) => TArgs,
+  : <TData = DataResponse<TAppRoute>, TQueryKey extends QueryKey = QueryKey>(
+      queryKey: TQueryKey,
+      args: (context: QueryFunctionContext<TQueryKey>) => TArgs,
       options?: UseQueryOptions<
         DataResponse<TAppRoute>,
         ErrorResponse<TAppRoute>,
-        TData
+        TData,
+        TQueryKey
       >,
     ) => UseQueryReturnType<TData, ErrorResponse<TAppRoute>>;
 
