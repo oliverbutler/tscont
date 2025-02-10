@@ -190,28 +190,48 @@ export const doesUrlMatchContractPath = (
     url = url.slice(0, -1);
   }
 
-  const contractPathParts = contractPath.split('/');
+  const contractPathParts = contractPath.split('/').filter(Boolean);
+  const urlParts = url.split('/').filter(Boolean);
 
-  const urlParts = url.split('/');
+  let urlIndex = 0;
+  let contractIndex = 0;
 
-  if (contractPathParts.length !== urlParts.length) {
-    return false;
-  }
+  while (contractIndex < contractPathParts.length) {
+    const contractPart = contractPathParts[contractIndex];
+    const urlPart = urlParts[urlIndex];
 
-  for (let i = 0; i < contractPathParts.length; i++) {
-    const contractPathPart = contractPathParts[i];
-    const urlPart = urlParts[i];
-
-    if (contractPathPart.startsWith(':')) {
+    // If it's an optional parameter
+    if (contractPart.endsWith('?')) {
+      // If we have a matching URL part, consume it
+      if (urlPart) {
+        urlIndex++;
+      }
+      contractIndex++;
       continue;
     }
 
-    if (contractPathPart !== urlPart) {
-      return false;
+    // If it's a required parameter or static part
+    if (!urlPart) {
+      // If we're missing a required part
+      if (!contractPart.startsWith(':') || !contractPart.endsWith('?')) {
+        return false;
+      }
     }
+
+    // For both static parts and parameters
+    if (urlPart) {
+      // For static parts, they must match exactly
+      if (!contractPart.startsWith(':') && contractPart !== urlPart) {
+        return false;
+      }
+      urlIndex++;
+    }
+
+    contractIndex++;
   }
 
-  return true;
+  // Make sure we've consumed all URL parts
+  return urlIndex === urlParts.length;
 };
 
 @Injectable()

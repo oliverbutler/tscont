@@ -1797,4 +1797,64 @@ describe('ts-rest-nest-handler', () => {
       expect(response.headers['content-type']).toBeUndefined();
     });
   });
+
+  describe('should handle two optional query params', () => {
+    const c = initContract();
+    const contract = c.router({
+      getPosts: {
+        method: 'GET',
+        path: '/posts/:year?/:month?',
+        responses: {
+          200: c.type<{ title: string }>(),
+        },
+      },
+    });
+
+    @Controller()
+    class TestController {
+      @TsRestHandler(contract)
+      async handler() {
+        return tsRestHandler(contract, {
+          getPosts: async ({ params }) => ({
+            status: 200,
+            body: {
+              title: `${params.year}-${params.month}`,
+            },
+          }),
+        });
+      }
+    }
+
+    it('express', async () => {
+      const moduleRef = await Test.createTestingModule({
+        controllers: [TestController],
+      }).compile();
+
+      const app = moduleRef.createNestApplication();
+      await app.init();
+
+      const server = app.getHttpServer();
+
+      const response = await supertest(server).get('/posts/2021/12');
+      expect(response.status).toEqual(200);
+      expect(response.body).toEqual({ title: '2021-12' });
+
+      const response3 = await supertest(server).get('/posts');
+      expect(response3.status).toEqual(200);
+      expect(response3.body).toEqual({ title: 'undefined-undefined' });
+    });
+
+    it('fastify doesnt permit this', async () => {
+      const moduleRef = await Test.createTestingModule({
+        controllers: [TestController],
+      }).compile();
+
+      const app = moduleRef.createNestApplication<NestFastifyApplication>(
+        new FastifyAdapter(),
+      );
+      // https://fastify.dev/docs/latest/Reference/Routes/#url-building
+      // fastify only accepts the last optional param
+      await expect(app.init()).rejects.toThrow();
+    });
+  });
 });
