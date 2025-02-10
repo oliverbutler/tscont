@@ -1,0 +1,99 @@
+import { InstallTabs } from '@site/src/components/InstallTabs';
+
+# Koa 🆕
+
+## Installation
+
+<InstallTabs packageName="@ts-rest/koa" />
+
+## Usage
+
+```typescript
+import { createKoaEndpoints, initServer } from '@ts-rest/koa';
+import * as Koa from 'koa';
+import { bodyParser } from '@koa/bodyparser';
+import * as Router from '@koa/router';
+import { contract } from './contract';
+
+const app = new Koa();
+app.use(bodyParser());
+
+const s = initServer();
+const router = s.router(contract, {
+  getPost: async ({ ctx }) => {
+    const { id } = ctx.params;
+    const post = await prisma.post.findUnique({ where: { id } });
+
+    return {
+      status: 200,
+      body: post ?? null,
+    };
+  },
+});
+
+const KoaRouter = new Router();
+createKoaEndpoints(contract, router, app, koaRouter);
+app.use(koaRouter.routes()).use(koaRouter.allowedMethods());
+```
+
+`createKoaEndpoints` is a function that takes a contract, a corresponding router with implementations and middleware for each endpoint, and a Koa app and Koa router, and it will
+create the corresponding Koa routes for each endpoint with the correct method, paths, and middleware and attach them to your Koa router. Once all routes have been attached, the
+created routes can then be mounted as middleware.
+
+## Options
+
+You can pass an optional options object as the last argument for `createKoaEndpoints`.
+
+```typescript
+type Options = {
+  logInitialization?: boolean; // print route initialization logs to console
+  jsonQuery?: boolean;
+  responseValidation?: boolean;
+  globalMiddleware?: Koa.Middleware[];
+  requestValidationErrorHandler?: 'default' | 'combined' | Koa.Middleware;
+};
+```
+
+### Response Validation
+
+To enable response parsing and validation, you can use the `validateResponses` option.
+If a corresponding response Zod schema is defined in the contract for the returned status code, the response will be parsed and validated.
+If validation fails, a `ResponseValidationError` will be thrown, causing a 500 response to be returned.
+
+```typescript
+createKoaEndpoints(contract, router, app, koaRouter, {
+  responseValidation: true,
+});
+```
+
+### Request Validation Error Handling
+
+The default functionality of handling request validation errors is to return a 400 response with the first validation error the validator encounters.
+
+You can pass `combined` to the `requestValidationErrorHandler` option to return a 400 response with all validation errors in the body in this form.
+
+```typescript
+{
+  pathParameterErrors: z.ZodError | null;
+  headerErrors: z.ZodError | null;
+  queryParameterErrors: z.ZodError | null;
+  bodyErrors: z.ZodError | null;
+}
+```
+
+You can also pass a custom error handler middleware to the `requestValidationErrorHandler` option.
+
+The error object will be included in `ctx` object under `ctx.state.err`.
+
+```typescript
+createKoaEndpoints(contract, router, app, {
+  requestValidationErrorHandler: (ctx, next) => {
+    const error = ctx.state.err;
+    //      err is typed as ^ RequestValidationError
+    ctx.status = 400;
+    ctx.body = {
+      message: 'Validation failed',
+    };
+  },
+});
+```

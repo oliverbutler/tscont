@@ -1,0 +1,62 @@
+{
+  "name": "ts-rest-koa",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/ts-rest/koa/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/rollup:rollup",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "project": "libs/ts-rest/koa/package.json",
+        "outputPath": "dist/libs/ts-rest/koa",
+        "main": "libs/ts-rest/koa/src/index.ts",
+        "tsConfig": "libs/ts-rest/koa/tsconfig.lib.json",
+        "assets": [
+          {
+            "glob": "CHANGELOG.md",
+            "input": "libs/ts-rest/koa",
+            "output": "."
+          },
+          {
+            "glob": "README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "format": ["esm", "cjs"],
+        "compiler": "tsc",
+        "rollupConfig": "tools/scripts/rollup.config.js",
+        "generateExportsField": true,
+        "updateBuildableProjectDepsInPackageJson": true
+      }
+    },
+    "publish": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/scripts/publish.mjs ts-rest-koa {args.ver} {args.tag}"
+      },
+      "dependsOn": [
+        {
+          "target": "build"
+        }
+      ]
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/ts-rest/koa/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/libs/ts-rest/koa"],
+      "options": {
+        "jestConfig": "libs/ts-rest/koa/jest.config.ts",
+        "coverageReporters": ["lcov", "text-summary"]
+      }
+    }
+  },
+  "tags": []
+}

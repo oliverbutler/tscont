@@ -125,6 +125,15 @@ const sidebars = {
         },
         {
           type: 'category',
+          label: 'Koa',
+          collapsed: true,
+          items: [
+            { type: 'doc', id: 'koa/koa' },
+            { type: 'doc', id: 'koa/middleware' },
+          ],
+        },
+        {
+          type: 'category',
           label: 'Serverless',
           collapsed: true,
           items: [
