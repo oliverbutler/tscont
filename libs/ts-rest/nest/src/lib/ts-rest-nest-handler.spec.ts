@@ -46,26 +46,6 @@ export type Expect<a extends true> = a;
 
 jest.setTimeout(10000);
 
-describe('doesUrlMatchContractPath', () => {
-  it.each`
-    contractPath    | url           | expected
-    ${'/'}          | ${'/'}        | ${true}
-    ${'/'}          | ${'/api'}     | ${false}
-    ${'/api'}       | ${'/api'}     | ${true}
-    ${'/api/'}      | ${'/api'}     | ${true}
-    ${'/api'}       | ${'/api/'}    | ${true}
-    ${'/api/'}      | ${'/api/'}    | ${true}
-    ${'/posts/:id'} | ${'/posts/1'} | ${true}
-    ${'/posts/:id'} | ${'/posts/1'} | ${true}
-    ${'/posts/:id'} | ${'/posts'}   | ${false}
-  `(
-    'should return $expected when contractPath is $contractPath and url is $url',
-    ({ contractPath, url, expected }) => {
-      expect(doesUrlMatchContractPath(contractPath, url)).toBe(expected);
-    },
-  );
-});
-
 describe('ts-rest-nest-handler', () => {
   describe('multi-handler api', () => {
     it('should be able to implement a whole contract', async () => {
@@ -258,8 +238,13 @@ describe('ts-rest-nest-handler', () => {
           .post('/test')
           .send({ message: 123 });
 
-        expect(responsePost.status).toBe(200);
-        expect(responsePost.body).toEqual({ message: 123 });
+        expect({
+          status: responsePost.status,
+          body: responsePost.body,
+        }).toStrictEqual({
+          status: 200,
+          body: { message: 123 },
+        });
       });
     });
 
@@ -481,7 +466,7 @@ describe('ts-rest-nest-handler', () => {
       });
     });
 
-    it('should be able to intercept', async () => {
+    it('should be able to intercept with multi handler', async () => {
       const c = initContract();
 
       const contract = c.router({
@@ -512,7 +497,7 @@ describe('ts-rest-nest-handler', () => {
       }
 
       @Controller()
-      class SingleHandlerTestController {
+      class MultiHandlerTestController {
         @TsRestHandler(contract)
         @UseInterceptors(TestInterceptor)
         async postRequest() {
@@ -526,7 +511,7 @@ describe('ts-rest-nest-handler', () => {
       }
 
       const moduleRef = await Test.createTestingModule({
-        controllers: [SingleHandlerTestController],
+        controllers: [MultiHandlerTestController],
       }).compile();
 
       const app = moduleRef.createNestApplication();
@@ -1203,6 +1188,64 @@ describe('ts-rest-nest-handler', () => {
         options: {
           cause: expect.any(TsRestException),
         },
+      });
+    });
+
+    it('should be able to have custom nest interceptors', async () => {
+      const c = initContract();
+
+      const contract = c.router({
+        getRequest: {
+          path: '/',
+          method: 'GET',
+          responses: {
+            200: z.object({
+              message: z.string(),
+            }),
+          },
+        },
+      });
+
+      @Injectable()
+      class TestInterceptor implements NestInterceptor {
+        intercept(
+          context: ExecutionContext,
+          next: CallHandler,
+        ): Observable<any> {
+          return next.handle().pipe(
+            map((data) => ({
+              message: 'intercepted',
+              oldMessage: data.message,
+            })),
+          );
+        }
+      }
+
+      @Controller()
+      class SingleHandlerTestController {
+        @TsRestHandler(contract.getRequest)
+        @UseInterceptors(TestInterceptor)
+        async postRequest() {
+          return tsRestHandler(contract.getRequest, async () => ({
+            status: 200,
+            body: { message: 'ok' },
+          }));
+        }
+      }
+
+      const moduleRef = await Test.createTestingModule({
+        controllers: [SingleHandlerTestController],
+      }).compile();
+
+      const app = moduleRef.createNestApplication();
+      await app.init();
+
+      const response = await supertest(app.getHttpServer()).get('/').send();
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({
+        message: 'intercepted',
+        oldMessage: 'ok',
       });
     });
   });

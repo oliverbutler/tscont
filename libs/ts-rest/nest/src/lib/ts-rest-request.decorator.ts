@@ -95,6 +95,8 @@ class TsRestValidatorPipe implements PipeTransform {
 
 /**
  * Parameter decorator used to parse, validate and return the typed request object
+ *
+ * @deprecated Please use `TsRestHandle` instead - will be removed in v4
  */
 export const TsRestRequest = () =>
   createParamDecorator((_: unknown, ctx: ExecutionContext) => {
