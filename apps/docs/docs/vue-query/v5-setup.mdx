@@ -1,0 +1,167 @@
+import { InstallTabs } from '@site/src/components/InstallTabs';
+
+# Setup
+
+Fully typed RPC-like client for Vue Query v5? Oh, yes!
+
+```tsx
+const {
+  data,                   // <- fully typed reactive response data
+  error,                  // <- fully typed reactive error data
+} = tsr.getPost.useQuery({
+  queryKey: ['posts'],
+  queryData: {            // <- fully typed request data
+    params: { id: '1' },
+  },
+  staleTime: 1000,        // <- vue-query options (optional)
+});
+```
+
+:::info
+
+This documentation is for Vue Query v5. If you are looking for the v4 docs, please click [here](/docs/vue-query/v4).
+
+In order to use the Vue Query v5 version of `@ts-rest/vue-query`, make sure you import `@ts-rest/vue-query/v5` in your code and not `@ts-rest/vue-query`.
+
+:::
+
+## Instructions
+
+### 1. Installation
+
+<InstallTabs packageName="@ts-rest/vue-query @tanstack/vue-query@5" />
+
+### 2. Setup Vue Query
+
+If you are not familiar enough with Vue Query, check out the [official `@tanstack/vue-query` documentation](https://tanstack.com/query/v5/docs/framework/vue/overview) to learn more about it and how to set it up.
+
+### 3. Create the Vue Plugin and Composables
+
+ts-rest Vue Query provides a Vue plugin factory. This factory can be used to create a plugin with typed providers for the ts-rest client as well as the underling `@tanstack/vue-query` query-client.
+
+Import your contract, and pass it with the client options to the `createTsRestPlugin` function. The client options are the same as the ones you would pass to the `initClient` function in `@ts-rest/core`.
+
+```ts
+import { createTsRestPlugin } from '@ts-rest/vue-query/v5';
+import { getAccessToken } from '@some-auth-lib/sdk';
+import { contract } from './contract';
+
+export const { TsRestPlugin, useClient, useQueryClient, useClientOptions } = createTsRestPlugin(contract, {
+  baseUrl: 'http://localhost:3334',
+  baseHeaders: {
+    'x-app-source': 'ts-rest',
+    'x-access-token': () => getAccessToken(),
+  },
+});
+```
+
+:::info
+
+`createTsRestPlugin` uses our fetch client under the hood, so you can configure it just as you would the fetch client, including passing a custom API fetcher.
+For more information, see the [fetch client documentation](/docs/core/fetch).
+
+Client options can be modified with `useClientOptions`.
+
+:::
+
+### 4. Setup ts-rest Vue Plugin
+
+Add the `TsRestPlugin` to your Vue app.
+
+```tsx
+import { createApp } from 'vue';
+import App from './App.vue';
+import { TsRestPlugin } from './tsr';
+
+createApp(App).use(TsRestPlugin).mount('#app');
+```
+
+:::info
+
+Tanstack's `VueQueryPlugin` is automatically setup with the `TsRestPlugin`.
+
+:::
+
+Now use the composables returned by `createTsRestPlugin` in your components. The structure of the container returned by the `useClient()` composable follows the same structure as your contract.
+
+## Complete Example
+
+```html
+<template>
+  <div>
+    <!-- Loading -->
+    <template v-if="isPending">Loading...</div>
+
+    <!-- Error -->
+    <template v-else-if="data?.status !== 200">Error</div>
+
+    <!-- Data -->
+    <template v-else>
+      <ul>
+        <li v-for="post in data.body" :key="post.id">{{ post.title }}</li>
+      </ul>
+      <button @click="mutate({ body: { title: 'Hello World' } })">Create Post</button>
+    </template>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { useClient, useQueryClient } from './tsr';
+
+const tsr = useClient();
+const tsrQueryClient = useQueryClient();
+
+const { data, isPending } = tsr.posts.get.useQuery({ queryKey: ['posts'] });
+
+const { mutate } = tsr.posts.create.useMutation({
+  onMutate: (newPost) => {
+    // get current posts, so we can reset back to it if the mutation fails
+    const lastGoodKnown = tsrQueryClient.posts.get.getQueryData(['posts']);
+
+    // optimistically update the cache with the new post
+    tsrQueryClient.posts.get.setQueryData(['posts'], (old) => ({
+      ...old,
+      body: [
+        ...old.body,
+        {
+          ...newPost.body,
+          id: `placeholder-${Date.now()}`
+        }
+      ]
+    }));
+
+    // return the old posts to be stored in mutation context
+    return { lastGoodKnown };
+  },
+  onError: (error, newPost, context) => {
+    tsrQueryClient.posts.get.setQueryData(['posts'], context.lastGoodKnown);
+  },
+  onSettled: () => {
+    // trigger a refetch regardless of it the mutation was successful or not
+    tsrQueryClient.invalidateQueries({ queryKey: ['posts'] });
+    //                 ^ QueryClient functions that do not consume or provide typed data are not wrapped by ts-rest
+    // and are provided at the root level only
+  },
+});
+</script>
+```
+
+All the composables have the same function signatures and options exactly as the ones from `@tanstack/vue-query`, with the only difference being that you need to pass `queryData` instead of `queryFn`.
+
+:::info
+
+When destructuring the response from `useQuery` or `useMutation`, remember that ts-rest returns a `status` and `body` property, so you'll need to destructure those as well.
+
+:::
+
+## Directly Fetching
+
+If you want to make `fetch` requests directly without going through React Query, we also expose `query` and `mutate` functions, so you do not have to initialize a separate fetch client.
+
+```typescript
+// Normal fetch
+const { body, status } = await tsr.posts.get.query();
+
+// useQuery composable
+const { data, isLoading } = tsr.posts.get.useQuery();
+```

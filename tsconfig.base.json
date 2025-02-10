@@ -40,6 +40,7 @@
       "@ts-rest/solid-query": ["libs/ts-rest/solid-query/src/index.ts"],
       "@ts-rest/ts-rest/utils": ["libs/ts-rest/utils/src/index.ts"],
       "@ts-rest/vue-query": ["libs/ts-rest/vue-query/src/index.ts"],
+      "@ts-rest/vue-query/v5": ["libs/ts-rest/vue-query-v5/src/v5.ts"],
       "@ts-rest/serverless": ["libs/ts-rest/serverless/src/index.ts"],
       "@ts-rest/serverless/fetch": ["libs/ts-rest/serverless/src/fetch.ts"],
       "@ts-rest/serverless/aws": ["libs/ts-rest/serverless/src/aws.ts"],

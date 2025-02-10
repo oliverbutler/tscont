@@ -28,7 +28,7 @@
 
 <script lang="ts" setup>
 import type { Post } from '@ts-rest/example-contracts';
-import { client } from './api/client';
+import { useClient } from './api/client';
 import { computed, ref } from 'vue';
 
 type Props = Post;
@@ -44,15 +44,15 @@ const updatedPost = computed(() => ({
   published: published.value,
 }));
 
-const { mutate: mutateUpdate, data } = client.updatePost.useMutation();
-const { mutate: mutateDelete } = client.deletePost.useMutation();
+const { mutate: mutateUpdate, data } = useClient().updatePost.useMutation();
+const { mutate: mutateDelete } = useClient().deletePost.useMutation();
 
 const deletePost = (id: string) => {
   mutateDelete(
     { params: { id } },
     {
       onSuccess: () => emit('delete', id),
-    }
+    },
   );
 };
 </script>

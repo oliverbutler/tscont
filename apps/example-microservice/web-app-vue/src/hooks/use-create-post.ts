@@ -1,9 +1,9 @@
 import { Post } from '@ts-rest/example-contracts';
 import { ref, watch } from 'vue';
-import { client } from '../api/client';
+import { useClient } from '../api/client';
 
 export const useCreateMockPost = () => {
-  const { data, mutate } = client.createPost.useMutation();
+  const { data, mutate } = useClient().createPost.useMutation();
   const posts = ref<Post[]>([]);
 
   watch(data, (newPost) => {

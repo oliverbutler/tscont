@@ -29,7 +29,10 @@
         "compiler": "tsc",
         "rollupConfig": "tools/scripts/rollup.config.js",
         "generateExportsField": true,
-        "updateBuildableProjectDepsInPackageJson": true
+        "additionalEntryPoints": [
+          "libs/ts-rest/vue-query/src/tanstack.ts",
+          "libs/ts-rest/vue-query/src/v5.ts"
+        ]
       }
     },
     "lint": {

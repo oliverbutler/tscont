@@ -1,6 +1,6 @@
 import { InstallTabs } from '@site/src/components/InstallTabs';
 
-# Vue Query
+# Vue Query v4
 
 ## Installation
 
@@ -155,7 +155,7 @@ const { isLoading, data, hasNextPage, fetchNextPage } = useInfiniteQuery(
   {
     getNextPageParam: (lastPage, allPages) => lastPage.nextCursor,
     getPreviousPageParam: (firstPage, allPages) => firstPage.prevCursor,
-  }
+  },
 );
 ```
 
@@ -180,7 +180,7 @@ export function Index() {
               ? { take: PAGE_SIZE, skip: allPages.length * PAGE_SIZE }
               : undefined
             : undefined,
-      }
+      },
     );
 
   if (isLoading) {
@@ -192,7 +192,7 @@ export function Index() {
   }
 
   const posts = data.pages.flatMap((page) =>
-    page.status === 200 ? page.body.posts : []
+    page.status === 200 ? page.body.posts : [],
   );
 
   //...

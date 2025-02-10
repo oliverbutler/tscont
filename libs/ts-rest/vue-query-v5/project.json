@@ -1,0 +1,47 @@
+{
+  "name": "ts-rest-vue-query-v5",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/ts-rest/vue-query-v5/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "dependsOn": [
+        {
+          "target": "build",
+          "projects": "ts-rest-vue-query"
+        }
+      ],
+      "executor": "@nx/rollup:rollup",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "deleteOutputPath": false,
+        "project": "libs/ts-rest/vue-query-v5/package.json",
+        "outputPath": "dist/libs/ts-rest/vue-query-v5",
+        "main": "libs/ts-rest/vue-query-v5/src/v5.ts",
+        "tsConfig": "libs/ts-rest/vue-query-v5/tsconfig.lib.json",
+        "format": [
+          "esm",
+          "cjs"
+        ],
+        "compiler": "tsc",
+        "rollupConfig": "libs/ts-rest/vue-query-v5/rollup.config.js",
+        "generateExportsField": true,
+        "additionalEntryPoints": [
+          "libs/ts-rest/vue-query-v5/src/v5.ts"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": [
+        "{workspaceRoot}/coverage/libs/ts-rest/vue-query-v5"
+      ],
+      "options": {
+        "jestConfig": "libs/ts-rest/vue-query-v5/jest.config.ts"
+      }
+    }
+  }
+}

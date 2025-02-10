@@ -1,5 +1,5 @@
 import { createApp } from 'vue';
 import App from './App.vue';
-import { VueQueryPlugin } from '@tanstack/vue-query';
+import { TsRestPlugin } from './api/client';
 
-createApp(App).use(VueQueryPlugin).mount('#app');
+createApp(App).use(TsRestPlugin).mount('#app');
