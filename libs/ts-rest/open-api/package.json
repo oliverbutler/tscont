@@ -1,6 +1,6 @@
 {
   "name": "@ts-rest/open-api",
-  "version": "3.51.1",
+  "version": "3.52.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/ts-rest/ts-rest.git",

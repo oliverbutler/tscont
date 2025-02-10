@@ -1,5 +1,7 @@
 # @ts-rest/express
 
+## 3.52.0
+
 ## 3.51.1
 
 ### Patch Changes
