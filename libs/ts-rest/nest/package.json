@@ -20,13 +20,13 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@nestjs/platform-express": "^9.0.0 || ^10.0.0",
-    "@nestjs/platform-fastify": "^9.0.0 || ^10.0.0",
+    "@nestjs/platform-express": "^9.0.0 || ^10.0.0 || ^11.0.0",
+    "@nestjs/platform-fastify": "^9.0.0 || ^10.0.0 || ^11.0.0",
     "fastify": "^4.0.0"
   },
   "peerDependencies": {
-    "@nestjs/common": "^9.0.0 || ^10.0.0",
-    "@nestjs/core": "^9.0.0 || ^10.0.0",
+    "@nestjs/common": "^9.0.0 || ^10.0.0 || ^11.0.0",
+    "@nestjs/core": "^9.0.0 || ^10.0.0 || ^11.0.0",
     "rxjs": "^7.1.0",
     "zod": "^3.22.3"
   },
