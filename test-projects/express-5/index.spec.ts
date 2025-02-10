@@ -60,4 +60,13 @@ describe('express 5', () => {
       },
     });
   });
+
+  it('should handle tiered optional query params', async () => {
+    const res = await request(app).get('/posts');
+
+    expectRes(res).toStrictEqual({
+      status: 200,
+      body: [],
+    });
+  });
 });

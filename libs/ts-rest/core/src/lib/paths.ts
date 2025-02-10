@@ -64,5 +64,6 @@ export const insertParamsIntoPath = <T extends string>({
     .replace(/:([^/?]+)\??/g, (_, p) => {
       return (params as any)[p] || '';
     })
-    .replace(/\/\//g, '/');
+    .replace(/\/\//g, '/')
+    .replace(/\/+$/g, ''); // Remove trailing slashes
 };

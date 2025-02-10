@@ -46,6 +46,17 @@ const contract = c.router({
       403: z.object({ message: z.string() }),
     },
   },
+  getPosts: {
+    method: 'GET',
+    path: '/posts/:year?',
+    responses: {
+      200: z.array(
+        z.object({
+          title: z.string(),
+        }),
+      ),
+    },
+  },
 });
 
 export const app = express();
@@ -76,6 +87,14 @@ const router = s.router(contract, {
       body: {
         message: `updated ${params.id} to ${body.name}`,
       },
+    };
+  },
+  getPosts: async ({ params }) => {
+    console.log(params);
+
+    return {
+      status: 200,
+      body: [{ title: 'Post 1' }, { title: 'Post 2' }],
     };
   },
 });
