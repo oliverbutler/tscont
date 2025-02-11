@@ -49,10 +49,10 @@ type AppRouteImplementation<T extends AppRoute> = (
       FastifyContextConfig<T>
     >;
     reply: fastify.FastifyReply<
+      fastify.RequestGenericInterface,
       fastify.RawServerDefault,
       fastify.RawRequestDefaultExpression,
       fastify.RawReplyDefaultExpression,
-      fastify.RouteGenericInterface,
       FastifyContextConfig<T>
     >;
     appRoute: T;
