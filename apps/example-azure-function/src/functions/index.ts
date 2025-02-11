@@ -82,6 +82,11 @@ const router = tsr.router(apiBlog, {
 const handler = createAzureFunctionHandler(apiBlog, router, {
   jsonQuery: true,
   responseValidation: true,
+  errorHandler: (err, req, { azureContext }) => {
+    if (err instanceof Error) {
+      azureContext.error(`[${err.name}] ${err.message}`);
+    }
+  },
 });
 
 app.http('apiBlog', {

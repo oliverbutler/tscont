@@ -370,9 +370,17 @@ const errorHandler =
   <TPlatformArgs, TRequestExtension>(
     options: ServerlessHandlerOptions<TPlatformArgs, TRequestExtension>,
   ) =>
-  async (error: unknown, request: TsRestRequest) => {
+  async (
+    error: unknown,
+    request: TsRestRequest,
+    platformArgs: TPlatformArgs,
+  ) => {
     if (options?.errorHandler) {
-      const maybeResponse = await options.errorHandler(error, request);
+      const maybeResponse = await options.errorHandler(
+        error,
+        request,
+        platformArgs,
+      );
 
       if (maybeResponse) {
         return maybeResponse;

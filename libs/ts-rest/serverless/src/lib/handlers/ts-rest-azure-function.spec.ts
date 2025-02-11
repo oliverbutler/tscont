@@ -143,6 +143,9 @@ describe('tsRestAzureFunction', () => {
         origin: ['http://localhost'],
         credentials: true,
       },
+      errorHandler: (err, req, args) => {
+        args.azureContext.log('test');
+      },
       requestMiddleware: [
         (req: TsRestRequest & { foo: string }) => {
           req.foo = 'bar';
@@ -364,6 +367,24 @@ describe('tsRestAzureFunction', () => {
     expect(await response.text()).toEqual('');
   });
 
+  it('should have access to platformArgs in the errorHandler', async () => {
+    const httpRequest = new HttpRequest({
+      method: 'GET',
+      url: 'http://localhost/throw',
+      headers: {
+        origin: 'http://localhost',
+      },
+    });
+
+    const context = {
+      log: vi.fn(),
+    } as unknown as InvocationContext;
+
+    await azureFunctionHandler(httpRequest, context);
+
+    expect(context.log).toBeCalledWith('test');
+  });
+
   it('should handle 500 response', async () => {
     const httpRequest = new HttpRequest({
       method: 'GET',
@@ -372,6 +393,7 @@ describe('tsRestAzureFunction', () => {
         origin: 'http://localhost',
       },
     });
+
     const context = new InvocationContext({});
 
     const response = await azureFunctionHandler(httpRequest, context);
