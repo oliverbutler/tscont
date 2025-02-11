@@ -20,11 +20,19 @@
     "directory": "libs/ts-rest/vue-query"
   },
   "license": "MIT",
+  "dependencies": {
+    "vue-demi": "^0.14.10"
+  },
   "peerDependencies": {
     "@tanstack/vue-query": "^4.0.0",
+    "@vue/composition-api": "^1.7.2",
+    "vue": "^3.0.0",
     "zod": "^3.22.3"
   },
   "peerDependenciesMeta": {
+    "@vue/composition-api": {
+      "optional": true
+    },
     "zod": {
       "optional": true
     }

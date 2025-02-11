@@ -41,7 +41,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue';
-import { client } from './api/client';
+import { useClient } from './api/client';
 import { useCreateMockPost } from './hooks/use-create-post';
 import { useInfinitePosts } from './hooks/use-infinite-posts';
 import Post from './Post.vue';
@@ -55,13 +55,15 @@ const {
 } = useInfinitePosts();
 
 const postId = computed(
-  () => createdPosts.value[createdPosts.value.length - 1]?.id
+  () => createdPosts.value[createdPosts.value.length - 1]?.id,
 );
-const { data, error, isFetching, isSuccess } = client.getPost.useQuery(
-  ['posts', postId],
-  () => ({ params: { id: postId.value } }),
-  { enabled: computed(() => !!postId.value) }
-);
+
+const { data, error, isFetching, isSuccess } = useClient().getPost.useQuery({
+  queryKey: ['posts', postId] as const,
+  queryData: { params: { id: postId } },
+  // queryData: () => ({ params: { id: postId.value } }),
+  enabled: computed(() => !!postId.value),
+});
 
 const onDelete = (id: string) => {
   const index = createdPosts.value.findIndex((post) => post.id === id);

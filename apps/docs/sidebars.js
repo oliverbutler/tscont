@@ -86,7 +86,23 @@ const sidebars = {
             { type: 'doc', id: 'react-query/v4' },
           ],
         },
-        { type: 'doc', id: 'vue-query' },
+
+        {
+          type: 'category',
+          label: 'Vue Query',
+          collapsed: true,
+          items: [
+            { type: 'doc', id: 'vue-query/v5-setup' },
+            { type: 'doc', id: 'vue-query/create-ts-rest-plugin' },
+            { type: 'doc', id: 'vue-query/use-client' },
+            { type: 'doc', id: 'vue-query/query-client' },
+            { type: 'doc', id: 'vue-query/use-infinite-query' },
+            { type: 'doc', id: 'vue-query/use-queries' },
+            { type: 'doc', id: 'vue-query/error-handling' },
+            { type: 'doc', id: 'vue-query/troubleshooting' },
+            { type: 'doc', id: 'vue-query/v4' },
+          ],
+        },
       ],
     },
     {

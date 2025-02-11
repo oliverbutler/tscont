@@ -1,9 +1,12 @@
 import { apiBlog } from '@ts-rest/example-contracts';
-import { initQueryClient } from '@ts-rest/vue-query';
+import { createTsRestPlugin } from '@ts-rest/vue-query/v5';
 
-export const client = initQueryClient(apiBlog, {
-  baseUrl: 'http://localhost:3334',
-  baseHeaders: {
-    'x-api-key': 'key',
+export const { TsRestPlugin, useClient, useQueryClient } = createTsRestPlugin(
+  apiBlog,
+  {
+    baseUrl: 'http://localhost:3334',
+    baseHeaders: {
+      'x-api-key': 'key',
+    },
   },
-});
+);
