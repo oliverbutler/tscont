@@ -35,6 +35,8 @@ const config = {
         entryPoints: [
           './libs/ts-rest/core',
           './libs/ts-rest/express',
+          './libs/ts-rest/fastify',
+          './libs/ts-rest/koa',
           './libs/ts-rest/nest',
           './libs/ts-rest/next',
           './libs/ts-rest/open-api',

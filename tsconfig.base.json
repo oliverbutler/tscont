@@ -28,6 +28,7 @@
       ],
       "@ts-rest/example-nest": ["libs/example-nest/src/index.ts"],
       "@ts-rest/express": ["libs/ts-rest/express/src/index.ts"],
+      "@ts-rest/koa": ["libs/ts-rest/koa/src/index.ts"],
       "@ts-rest/fastify": ["libs/ts-rest/fastify/src/index.ts"],
       "@ts-rest/nest": ["libs/ts-rest/nest/src/index.ts"],
       "@ts-rest/next": ["libs/ts-rest/next/src/index.ts"],

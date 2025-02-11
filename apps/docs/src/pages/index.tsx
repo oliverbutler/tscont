@@ -17,6 +17,8 @@ import solidJs from '../../static/img/solid.png';
 // @ts-ignore
 import express from '../../static/img/express.png';
 // @ts-ignore
+import koa from '../../static/img/koa.png';
+// @ts-ignore
 import nest from '../../static/img/nest.png';
 // @ts-ignore
 import fastify from '../../static/img/fastify.png';
@@ -229,6 +231,11 @@ export default function Home(): JSX.Element {
               name: '@ts-rest/fastify',
               description: 'Fastify integration 🆕',
               image: fastify,
+            },
+            {
+              name: '@ts-rest/koa',
+              description: 'Koa integration 🆕',
+              image: koa,
             },
             {
               name: '@ts-rest/open-api',
