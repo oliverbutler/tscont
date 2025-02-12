@@ -1269,6 +1269,100 @@ describe('ts-rest-open-api', () => {
       });
     });
 
+    it('should extract nested references by nested-only title', () => {
+      const child = extendApi(
+        z.object({
+          file: z.string(),
+        }),
+        {
+          title: 'Child',
+        },
+      );
+      const parent = extendApi(
+        z.object({
+          child: child,
+        }),
+      );
+      const routerWithTransform = c.router({
+        formEndpoint: {
+          method: 'PUT',
+          path: '/title',
+          body: parent,
+          responses: {
+            200: parent,
+          },
+        },
+      });
+
+      const schema = generateOpenApi(routerWithTransform, {
+        info: { title: 'Title API', version: '0.1' },
+      });
+
+      expect(schema).toEqual({
+        components: {
+          schemas: {
+            Child: {
+              properties: {
+                file: {
+                  type: 'string',
+                },
+              },
+              required: ['file'],
+              title: 'Child',
+              type: 'object',
+            },
+          },
+        },
+        info: {
+          title: 'Title API',
+          version: '0.1',
+        },
+        openapi: '3.0.2',
+        paths: {
+          '/title': {
+            put: {
+              parameters: [],
+              requestBody: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      properties: {
+                        child: {
+                          $ref: '#/components/schemas/Child',
+                        },
+                      },
+                      required: ['child'],
+                      type: 'object',
+                    },
+                  },
+                },
+                description: 'Body',
+              },
+              responses: {
+                '200': {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        properties: {
+                          child: {
+                            $ref: '#/components/schemas/Child',
+                          },
+                        },
+                        required: ['child'],
+                        type: 'object',
+                      },
+                    },
+                  },
+                  description: '200',
+                },
+              },
+              tags: [],
+            },
+          },
+        },
+      });
+    });
+
     it('should throw if duplicated title', () => {
       const routerWithTransform = c.router({
         formEndpoint: {

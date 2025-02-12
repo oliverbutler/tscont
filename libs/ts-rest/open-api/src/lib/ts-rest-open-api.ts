@@ -322,7 +322,7 @@ export const generateOpenApi = (
         ? getOpenApiSchemaFromZod(path.route.body)
         : null;
 
-    if (bodySchema?.title) {
+    if (bodySchema) {
       bodySchema = extractReferenceSchemas(bodySchema, referenceSchemas);
     }
 
