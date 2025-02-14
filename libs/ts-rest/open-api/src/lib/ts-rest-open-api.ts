@@ -3,6 +3,7 @@ import {
   AppRouter,
   extractZodObjectShape,
   isAppRoute,
+  isAppRouteOtherResponse,
   isZodObject,
   isZodType,
 } from '@ts-rest/core';
@@ -328,10 +329,18 @@ export const generateOpenApi = (
 
     const responses = Object.entries(path.route.responses).reduce(
       (acc, [statusCode, response]) => {
-        let responseSchema = getOpenApiSchemaFromZod(response, true);
+        let contentType = 'application/json';
+        let responseBody = response;
+
+        if (isAppRouteOtherResponse(response)) {
+          contentType = response.contentType;
+          responseBody = response.body;
+        }
+
+        let responseSchema = getOpenApiSchemaFromZod(responseBody, true);
         const description =
-          isZodType(response) && response.description
-            ? response.description
+          isZodType(responseBody) && responseBody.description
+            ? responseBody.description
             : statusCode;
 
         if (responseSchema) {
@@ -348,7 +357,7 @@ export const generateOpenApi = (
             ...(responseSchema
               ? {
                   content: {
-                    'application/json': {
+                    [contentType]: {
                       ...convertSchemaObjectToMediaTypeObject(responseSchema),
                     },
                   },

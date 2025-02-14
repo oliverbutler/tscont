@@ -1301,5 +1301,78 @@ describe('ts-rest-open-api', () => {
         }),
       ).toThrowError(/already exists with a different schema/);
     });
+
+    it('works with other responses', () => {
+      const routerWithOtherResponse = c.router({
+        getFile: {
+          method: 'GET',
+          path: '/file/:id',
+          pathParams: z.object({
+            id: z.string(),
+          }),
+          responses: {
+            200: c.otherResponse({
+              contentType: 'text/csv',
+              body: z.array(
+                z.object({
+                  name: z.string(),
+                }),
+              ),
+            }),
+          }}});
+
+      const schema = generateOpenApi(routerWithOtherResponse, {
+        info: { title: 'File API', version: '0.1' },
+      });
+
+      expect(schema).toEqual({
+        info: {
+          title: 'File API',
+          version: '0.1',
+        },
+        openapi: '3.0.2',
+        paths: {
+          '/file/{id}': {
+            get: {
+              deprecated: undefined,
+              description: undefined,
+              parameters: [
+                {
+                  in: 'path',
+                  name: 'id',
+                  required: true,
+                  schema: {
+                    type: 'string',
+                  },
+                },
+              ],
+              responses: {
+                '200': {
+                  content: {
+                    'text/csv': {
+                      schema: {
+                        items: {
+                          properties: {
+                            name: {
+                              type: 'string',
+                            },
+                          },
+                          required: ['name'],
+                          type: 'object',
+                        },
+                        type: 'array',
+                      },
+                    },
+                  },
+                  description: '200',
+                },
+              },
+              summary: undefined,
+              tags: [],
+            },
+          },
+        },
+      });
+    });
   });
 });
