@@ -1,4 +1,10 @@
-import { AppRoute, AppRouteMutation, AppRouter, isAppRoute } from './dsl';
+import {
+  AppRoute,
+  AppRouteMutation,
+  AppRouter,
+  ContractNoBody,
+  isAppRoute,
+} from './dsl';
 import { insertParamsIntoPath } from './paths';
 import { convertQueryParamsToUrlString } from './query';
 import { AreAllPropertiesOptional, Prettify } from './type-utils';
@@ -128,13 +134,14 @@ export const tsRestFetchApi: ApiFetcher = async ({
   const contentType = result.headers.get('content-type');
 
   if (contentType?.includes('application/') && contentType?.includes('json')) {
+    const responseSchema = route.responses[result.status];
+
     const response = {
       status: result.status,
-      body: await result.json(),
+      body: responseSchema === ContractNoBody ? undefined : await result.json(),
       headers: result.headers,
     };
 
-    const responseSchema = route.responses[response.status];
     if (
       (validateResponse ?? route.validateResponseOnClient) &&
       isZodType(responseSchema)

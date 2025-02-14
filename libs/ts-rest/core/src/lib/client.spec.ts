@@ -635,6 +635,31 @@ describe('client', () => {
       expect(result.headers.has('Content-Length')).toBe(false);
       expect(result.headers.has('Content-Type')).toBe(false);
     });
+
+    it('w/ undefined body and content-type json', async () => {
+      fetchMock.deleteOnce(
+        {
+          url: 'https://api.com/posts/2',
+        },
+        {
+          status: 204,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+          },
+        },
+      );
+
+      const result = await client.posts.deletePostUndefinedBody({
+        params: { id: '2' },
+      });
+
+      expect(result.body).toBeUndefined();
+      expect(result.status).toBe(204);
+      expect(result.headers.has('Content-Length')).toBe(false);
+      expect(result.headers.get('Content-Type')).toBe(
+        'application/json; charset=utf-8',
+      );
+    });
   });
 
   describe('multipart/form-data', () => {
