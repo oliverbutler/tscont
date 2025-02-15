@@ -169,6 +169,7 @@ describe('ts-rest-nest-handler', () => {
         expect(responsePost.status).toBe(400);
         expect(responsePost.body).toEqual({
           bodyResult: {
+            name: 'ValidationError',
             issues: [
               {
                 code: 'invalid_type',
@@ -178,7 +179,6 @@ describe('ts-rest-nest-handler', () => {
                 message: 'Expected string, received number',
               },
             ],
-            name: 'ZodError',
           },
           headersResult: null,
           queryResult: null,
@@ -294,6 +294,7 @@ describe('ts-rest-nest-handler', () => {
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
           headersResult: {
+            name: 'ValidationError',
             issues: [
               {
                 code: 'invalid_type',
@@ -303,7 +304,6 @@ describe('ts-rest-nest-handler', () => {
                 received: 'undefined',
               },
             ],
-            name: 'ZodError',
           },
           bodyResult: null,
           queryResult: null,
@@ -406,6 +406,7 @@ describe('ts-rest-nest-handler', () => {
           headersResult: null,
           bodyResult: null,
           queryResult: {
+            name: 'ValidationError',
             issues: [
               {
                 code: 'invalid_type',
@@ -415,7 +416,6 @@ describe('ts-rest-nest-handler', () => {
                 received: 'undefined',
               },
             ],
-            name: 'ZodError',
           },
           paramsResult: null,
         });
@@ -747,6 +747,7 @@ describe('ts-rest-nest-handler', () => {
         status: 400,
         body: {
           bodyResult: {
+            name: 'ValidationError',
             issues: [
               {
                 code: 'invalid_type',
@@ -757,7 +758,6 @@ describe('ts-rest-nest-handler', () => {
                 message: 'Required',
               },
             ],
-            name: 'ZodError',
           },
           headersResult: null,
           paramsResult: null,
@@ -950,6 +950,7 @@ describe('ts-rest-nest-handler', () => {
       expect(responsePost.status).toBe(400);
       expect(responsePost.body).toEqual({
         bodyResult: {
+          name: 'ValidationError',
           issues: [
             {
               code: 'invalid_type',
@@ -959,7 +960,6 @@ describe('ts-rest-nest-handler', () => {
               message: 'Expected string, received number',
             },
           ],
-          name: 'ZodError',
         },
         headersResult: null,
         queryResult: null,
@@ -1108,6 +1108,7 @@ describe('ts-rest-nest-handler', () => {
         status: 400,
         body: {
           bodyResult: {
+            name: 'ValidationError',
             issues: [
               {
                 code: 'invalid_type',
@@ -1118,7 +1119,6 @@ describe('ts-rest-nest-handler', () => {
                 message: 'Required',
               },
             ],
-            name: 'ZodError',
           },
           headersResult: null,
           paramsResult: null,
@@ -1957,6 +1957,7 @@ describe('ts-rest-nest-handler', () => {
         bodyResult: null,
         headersResult: null,
         paramsResult: {
+          name: 'ValidationError',
           issues: [
             {
               code: 'invalid_type',
@@ -1966,7 +1967,6 @@ describe('ts-rest-nest-handler', () => {
               message: 'Expected number, received nan',
             },
           ],
-          name: 'ZodError',
         },
         queryResult: null,
       },
@@ -2147,6 +2147,7 @@ describe('ts-rest-nest-handler', () => {
           headersResult: null,
           paramsResult: null,
           queryResult: {
+            name: 'ValidationError',
             issues: [
               {
                 code: 'invalid_type',
@@ -2156,7 +2157,6 @@ describe('ts-rest-nest-handler', () => {
                 received: 'string',
               },
             ],
-            name: 'ZodError',
           },
         });
       });
@@ -2195,6 +2195,7 @@ describe('ts-rest-nest-handler', () => {
           headersResult: null,
           paramsResult: null,
           queryResult: {
+            name: 'ValidationError',
             issues: [
               {
                 code: 'invalid_type',
@@ -2204,7 +2205,6 @@ describe('ts-rest-nest-handler', () => {
                 received: 'string',
               },
             ],
-            name: 'ZodError',
           },
         });
       });

@@ -1,7 +1,7 @@
 import {
   AppRoute,
   AppRouter,
-  checkZodSchema,
+  checkStandardSchema,
   FlattenAppRouter,
   HTTPStatusCode,
   isAppRouteNoBody,
@@ -11,27 +11,28 @@ import {
   ServerInferResponses,
   TsRestResponseError,
   validateResponse,
-  ZodErrorSchema,
+  ValidationError,
+  ValidationErrorSchema,
 } from '@ts-rest/core';
 import * as fastify from 'fastify';
 import { z } from 'zod';
 
 export class RequestValidationError extends Error {
   constructor(
-    public pathParams: z.ZodError | null,
-    public headers: z.ZodError | null,
-    public query: z.ZodError | null,
-    public body: z.ZodError | null,
+    public pathParams: ValidationError | null,
+    public headers: ValidationError | null,
+    public query: ValidationError | null,
+    public body: ValidationError | null,
   ) {
     super('[ts-rest] request validation failed');
   }
 }
 
 export const RequestValidationErrorSchema = z.object({
-  pathParameterErrors: ZodErrorSchema.nullable(),
-  headerErrors: ZodErrorSchema.nullable(),
-  queryParameterErrors: ZodErrorSchema.nullable(),
-  bodyErrors: ZodErrorSchema.nullable(),
+  pathParameterErrors: ValidationErrorSchema.nullable(),
+  headerErrors: ValidationErrorSchema.nullable(),
+  queryParameterErrors: ValidationErrorSchema.nullable(),
+  bodyErrors: ValidationErrorSchema.nullable(),
 });
 
 type FastifyContextConfig<T extends AppRouter | AppRoute> = {
@@ -144,37 +145,37 @@ const validateRequest = (
   schema: AppRoute,
   options: BaseRegisterRouterOptions,
 ) => {
-  const paramsResult = checkZodSchema(request.params, schema.pathParams, {
+  const paramsResult = checkStandardSchema(request.params, schema.pathParams, {
     passThroughExtraKeys: true,
   });
 
-  const headersResult = checkZodSchema(request.headers, schema.headers, {
+  const headersResult = checkStandardSchema(request.headers, schema.headers, {
     passThroughExtraKeys: true,
   });
 
-  const queryResult = checkZodSchema(
+  const queryResult = checkStandardSchema(
     options.jsonQuery
       ? parseJsonQueryObject(request.query as Record<string, string>)
       : request.query,
     schema.query,
   );
 
-  const bodyResult = checkZodSchema(
+  const bodyResult = checkStandardSchema(
     request.body,
     'body' in schema ? schema.body : null,
   );
 
   if (
-    !paramsResult.success ||
-    !headersResult.success ||
-    !queryResult.success ||
-    !bodyResult.success
+    paramsResult.error ||
+    headersResult.error ||
+    queryResult.error ||
+    bodyResult.error
   ) {
     throw new RequestValidationError(
-      paramsResult.success ? null : paramsResult.error,
-      headersResult.success ? null : headersResult.error,
-      queryResult.success ? null : queryResult.error,
-      bodyResult.success ? null : bodyResult.error,
+      paramsResult.error || null,
+      headersResult.error || null,
+      queryResult.error || null,
+      bodyResult.error || null,
     );
   }
 
@@ -358,13 +359,13 @@ const registerRoute = <TAppRoute extends AppRoute>(
       try {
         result = await handler({
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          params: validationResults.paramsResult.data as any,
-          query: validationResults.queryResult.data,
+          params: validationResults.paramsResult.value as any,
+          query: validationResults.queryResult.value,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          headers: validationResults.headersResult.data as any,
+          headers: validationResults.headersResult.value as any,
           request,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          body: validationResults.bodyResult.data as any,
+          body: validationResults.bodyResult.value as any,
           reply,
           appRoute,
         });

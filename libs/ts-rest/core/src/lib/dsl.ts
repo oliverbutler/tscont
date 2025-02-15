@@ -1,8 +1,8 @@
+import { StandardSchemaV1 } from './standard-schema';
+import { mergeStandardSchema } from './standard-schema-utils';
 import { Merge, Opaque, Prettify, WithoutUnknown } from './type-utils';
-import { zodMerge } from './zod-utils';
-import { z } from 'zod';
 
-type MixedZodError<A, B> = Opaque<{ a: A; b: B }, 'MixedZodError'>;
+type MixedSchemaError<A, B> = Opaque<{ a: A; b: B }, 'MixedSchemaError'>;
 
 /**
  * The path with colon-prefixed parameters
@@ -17,7 +17,7 @@ export type ContractPlainType<T> = Opaque<T, 'ContractPlainType'>;
 export type ContractNullType = Opaque<typeof NullSymbol, 'ContractNullType'>;
 export type ContractNoBodyType = typeof ContractNoBody;
 export type ContractAnyType =
-  | z.ZodSchema
+  | StandardSchemaV1<any>
   | ContractPlainType<unknown>
   | ContractNullType
   | null;
@@ -82,9 +82,9 @@ type ValidatedHeaders<
   TOptions extends RouterOptions,
   TOptionsApplied = ApplyOptions<T, TOptions>,
 > = 'headers' extends keyof TOptionsApplied
-  ? TOptionsApplied['headers'] extends MixedZodError<infer A, infer B>
+  ? TOptionsApplied['headers'] extends MixedSchemaError<infer A, infer B>
     ? {
-        _error: 'Cannot mix plain object types with Zod objects for headers';
+        _error: 'Cannot mix plain object types with StandardSchemaV1 objects for headers';
         a: A;
         b: B;
       }
@@ -118,20 +118,19 @@ type RecursivelyApplyOptions<
     : TRouter[TRouterKey];
 };
 
-type UniversalMerge<A, B> = A extends z.AnyZodObject
-  ? B extends z.AnyZodObject
-    ? z.ZodObject<
-        z.objectUtil.MergeShapes<A['shape'], B['shape']>,
-        B['_def']['unknownKeys'],
-        B['_def']['catchall']
+type UniversalMerge<A, B> = A extends StandardSchemaV1
+  ? B extends StandardSchemaV1
+    ? StandardSchemaV1<
+        StandardSchemaV1.InferInput<A> & StandardSchemaV1.InferInput<B>,
+        StandardSchemaV1.InferOutput<A> & StandardSchemaV1.InferOutput<B>
       >
     : unknown extends B
     ? A
-    : MixedZodError<A, B>
+    : MixedSchemaError<A, B>
   : unknown extends A
   ? B
-  : B extends z.AnyZodObject
-  ? MixedZodError<A, B>
+  : B extends StandardSchemaV1
+  ? MixedSchemaError<A, B>
   : unknown extends B
   ? A
   : Prettify<
@@ -191,7 +190,7 @@ export type FlattenAppRouter<T extends AppRouter | AppRoute> =
       }[keyof T];
 
 export type RouterOptions<TPrefix extends string = string> = {
-  baseHeaders?: unknown;
+  baseHeaders?: ContractAnyType;
   strictStatusCodes?: boolean;
   pathPrefix?: TPrefix;
   commonResponses?: Record<number, AppRouteResponse>;
@@ -301,7 +300,7 @@ const recursivelyApplyOptions = <T extends AppRouter>(
             path: options?.pathPrefix
               ? options.pathPrefix + value.path
               : value.path,
-            headers: zodMerge(options?.baseHeaders, value.headers),
+            headers: mergeStandardSchema(options?.baseHeaders, value.headers),
             strictStatusCodes:
               value.strictStatusCodes ?? options?.strictStatusCodes,
             validateResponseOnClient:

@@ -73,6 +73,7 @@ describe('example-azure-function', () => {
       message: 'Request validation failed',
       bodyErrors: null,
       headerErrors: {
+        name: 'ValidationError',
         issues: [
           {
             code: 'invalid_type',
@@ -82,7 +83,6 @@ describe('example-azure-function', () => {
             received: 'nan',
           },
         ],
-        name: 'ZodError',
       },
       pathParameterErrors: null,
       queryParameterErrors: null,
@@ -105,6 +105,7 @@ describe('example-azure-function', () => {
       headerErrors: null,
       pathParameterErrors: null,
       queryParameterErrors: {
+        name: 'ValidationError',
         issues: [
           {
             code: 'invalid_type',
@@ -114,7 +115,6 @@ describe('example-azure-function', () => {
             received: 'undefined',
           },
         ],
-        name: 'ZodError',
       },
     });
   });
@@ -137,6 +137,7 @@ describe('example-azure-function', () => {
     expect(body).toEqual({
       message: 'Request validation failed',
       bodyErrors: {
+        name: 'ValidationError',
         issues: [
           {
             code: 'invalid_type',
@@ -146,7 +147,6 @@ describe('example-azure-function', () => {
             received: 'number',
           },
         ],
-        name: 'ZodError',
       },
       headerErrors: null,
       pathParameterErrors: null,
@@ -165,6 +165,7 @@ describe('example-azure-function', () => {
       message: 'Request validation failed',
       bodyErrors: null,
       headerErrors: {
+        name: 'ValidationError',
         issues: [
           {
             code: 'invalid_type',
@@ -174,7 +175,6 @@ describe('example-azure-function', () => {
             received: 'undefined',
           },
         ],
-        name: 'ZodError',
       },
       pathParameterErrors: null,
       queryParameterErrors: null,

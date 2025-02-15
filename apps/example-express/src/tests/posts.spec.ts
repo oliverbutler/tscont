@@ -31,6 +31,7 @@ describe('Posts Endpoints', () => {
 
     expect(res.status).toStrictEqual(400);
     expect(res.body).toStrictEqual({
+      name: 'ValidationError',
       issues: [
         {
           code: 'invalid_type',
@@ -40,7 +41,6 @@ describe('Posts Endpoints', () => {
           received: 'nan',
         },
       ],
-      name: 'ZodError',
     });
   });
 
@@ -49,6 +49,7 @@ describe('Posts Endpoints', () => {
 
     expect(res.status).toStrictEqual(400);
     expect(res.body).toStrictEqual({
+      name: 'ValidationError',
       issues: [
         {
           code: 'invalid_type',
@@ -58,7 +59,6 @@ describe('Posts Endpoints', () => {
           received: 'undefined',
         },
       ],
-      name: 'ZodError',
     });
   });
 
@@ -70,6 +70,7 @@ describe('Posts Endpoints', () => {
 
     expect(res.status).toStrictEqual(400);
     expect(res.body).toStrictEqual({
+      name: 'ValidationError',
       issues: [
         {
           code: 'invalid_type',
@@ -79,7 +80,6 @@ describe('Posts Endpoints', () => {
           received: 'number',
         },
       ],
-      name: 'ZodError',
     });
   });
 
@@ -88,6 +88,7 @@ describe('Posts Endpoints', () => {
 
     expect(res.status).toStrictEqual(400);
     expect(res.body).toStrictEqual({
+      name: 'ValidationError',
       issues: [
         {
           code: 'invalid_type',
@@ -97,7 +98,6 @@ describe('Posts Endpoints', () => {
           received: 'undefined',
         },
       ],
-      name: 'ZodError',
     });
   });
 

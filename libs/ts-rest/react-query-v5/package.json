@@ -6,6 +6,6 @@
   "peerDependencies": {
     "@tanstack/react-query": "^5.0.0",
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
-    "zod": "^3.22.3"
+    "zod": "^3.24.0"
   }
 }

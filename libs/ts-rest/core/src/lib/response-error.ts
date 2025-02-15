@@ -1,7 +1,7 @@
 import { AppRoute, AppRouter, AppRouteResponse } from './dsl';
 import { ResolveResponseType, ServerInferResponses } from './infer-types';
 import { HTTPStatusCode } from './status-codes';
-import { CommonAndEqual, ZodInputOrType } from './type-utils';
+import { CommonAndEqual, SchemaInputOrType } from './type-utils';
 
 export class TsRestResponseError<T extends AppRoute | AppRouter> extends Error {
   public statusCode: HTTPStatusCode;
@@ -55,7 +55,7 @@ type ServerCommonResponses<
   [K in keyof TResponses]: {
     status: K;
     body: TResponses[K] extends AppRouteResponse
-      ? ZodInputOrType<ResolveResponseType<TResponses[K]>>
+      ? SchemaInputOrType<ResolveResponseType<TResponses[K]>>
       : never;
   };
 }[keyof TResponses];

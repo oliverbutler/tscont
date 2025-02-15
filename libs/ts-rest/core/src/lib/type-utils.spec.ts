@@ -4,16 +4,16 @@ import { Equal, Expect } from './test-helpers';
 import {
   AreAllPropertiesOptional,
   Without,
-  ZodInferOrType,
+  SchemaOutputOrType,
 } from './type-utils';
 
 const zodObject = z.object({ title: z.string() });
-type Test1 = ZodInferOrType<typeof zodObject>;
+type Test1 = SchemaOutputOrType<typeof zodObject>;
 
 const zodObjectNullable = zodObject.nullable();
-type Test2 = ZodInferOrType<typeof zodObject>;
+type Test2 = SchemaOutputOrType<typeof zodObject>;
 
-type Test3 = ZodInferOrType<{ title: string }>;
+type Test3 = SchemaOutputOrType<{ title: string }>;
 
 it.todo('should infer type');
 

@@ -19,8 +19,8 @@ import {
   PartialByLooseKeys,
   Prettify,
   Without,
-  ZodInferOrType,
-  ZodInputOrType,
+  SchemaOutputOrType,
+  SchemaInputOrType,
 } from './type-utils';
 import {
   ApiFetcher,
@@ -55,8 +55,8 @@ type PathParamsWithCustomValidators<
   ? Merge<
       PathParamsFromUrl<T>,
       TClientOrServer extends 'server'
-        ? ZodInferOrType<T['pathParams']>
-        : ZodInputOrType<T['pathParams']>
+        ? SchemaOutputOrType<T['pathParams']>
+        : SchemaInputOrType<T['pathParams']>
     >
   : PathParamsFromUrl<T>;
 
@@ -89,8 +89,8 @@ type AppRouteResponses<
       [K in keyof T['responses'] & TStatus]: {
         status: K;
         body: TClientOrServer extends 'server'
-          ? ZodInputOrType<ResolveResponseType<T['responses'][K]>>
-          : ZodInferOrType<ResolveResponseType<T['responses'][K]>>;
+          ? SchemaInputOrType<ResolveResponseType<T['responses'][K]>>
+          : SchemaOutputOrType<ResolveResponseType<T['responses'][K]>>;
       } & (TClientOrServer extends 'client'
         ? {
             headers: Headers;
@@ -160,8 +160,8 @@ export type ClientInferResponseBody<
 
 type BodyWithoutFileIfMultiPart<T extends AppRouteMutation> =
   T['contentType'] extends 'multipart/form-data'
-    ? Without<ZodInferOrType<T['body']>, File | File[]>
-    : ZodInferOrType<T['body']>;
+    ? Without<SchemaOutputOrType<T['body']>, File | File[]>
+    : SchemaOutputOrType<T['body']>;
 
 export type ServerInferRequest<
   T extends AppRoute | AppRouter,
@@ -176,15 +176,17 @@ export type ServerInferRequest<
           body: T extends AppRouteMutation
             ? BodyWithoutFileIfMultiPart<T>
             : never;
-          query: 'query' extends keyof T ? ZodInferOrType<T['query']> : never;
+          query: 'query' extends keyof T
+            ? SchemaOutputOrType<T['query']>
+            : never;
           headers: 'headers' extends keyof T
             ? Prettify<
-                LowercaseKeys<ZodInferOrType<T['headers']>> &
+                LowercaseKeys<SchemaOutputOrType<T['headers']>> &
                   ([TServerHeaders] extends [never]
                     ? {}
                     : Omit<
                         TServerHeaders,
-                        keyof LowercaseKeys<ZodInferOrType<T['headers']>>
+                        keyof LowercaseKeys<SchemaOutputOrType<T['headers']>>
                       >)
               >
             : TServerHeaders;
@@ -202,7 +204,7 @@ type ClientInferRequestBase<
   THeaders = 'headers' extends keyof T
     ? Prettify<
         PartialByLooseKeys<
-          LowercaseKeys<ZodInputOrType<T['headers']>>,
+          LowercaseKeys<SchemaInputOrType<T['headers']>>,
           keyof LowercaseKeys<TClientArgs['baseHeaders']>
         >
       >
@@ -220,15 +222,15 @@ type ClientInferRequestBase<
         ? T['body'] extends null
           ? never
           : T['contentType'] extends 'multipart/form-data'
-          ? FormData | ZodInputOrType<T['body']>
+          ? FormData | SchemaInputOrType<T['body']>
           : T['contentType'] extends 'application/x-www-form-urlencoded'
-          ? string | ZodInputOrType<T['body']>
-          : ZodInputOrType<T['body']>
+          ? string | SchemaInputOrType<T['body']>
+          : SchemaInputOrType<T['body']>
         : never;
       query: 'query' extends keyof T
         ? T['query'] extends null
           ? never
-          : ZodInputOrType<T['query']>
+          : SchemaInputOrType<T['query']>
         : never;
       headers: THeaders;
       extraHeaders?: [THeaders] extends [never]

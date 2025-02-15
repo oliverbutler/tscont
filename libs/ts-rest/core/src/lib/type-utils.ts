@@ -1,5 +1,5 @@
-import { z } from 'zod';
 import { ContractNoBodyType, ContractNullType, ContractPlainType } from './dsl';
+import { StandardSchemaV1 } from './standard-schema';
 
 type GetIndexedField<T, K> = K extends keyof T
   ? T[K]
@@ -51,25 +51,31 @@ type ExcludeKeysWithoutTypeOf<T, V> = {
 export type Without<T, V> = Pick<T, ExcludeKeysWithTypeOf<T, V>>;
 export type With<T, V> = Pick<T, ExcludeKeysWithoutTypeOf<T, V>>;
 
-export type ZodInferOrType<T> = T extends ContractNullType
+export type SchemaOutputOrType<T> = T extends ContractNullType
   ? null
   : T extends ContractNoBodyType
   ? undefined
   : T extends ContractPlainType<infer U>
   ? U
-  : T extends z.ZodTypeAny
-  ? z.infer<T>
+  : T extends StandardSchemaV1
+  ? StandardSchemaV1.InferOutput<T>
   : T;
 
-export type ZodInputOrType<T> = T extends ContractNullType
+/** @deprecated use SchemaOutputOrType */
+export type ZodInferOrType<T> = SchemaOutputOrType<T>;
+
+export type SchemaInputOrType<T> = T extends ContractNullType
   ? null
   : T extends ContractNoBodyType
   ? undefined
   : T extends ContractPlainType<infer U>
   ? U
-  : T extends z.ZodTypeAny
-  ? z.input<T>
+  : T extends StandardSchemaV1
+  ? StandardSchemaV1.InferInput<T>
   : T;
+
+/** @deprecated use SchemaInputOrType */
+export type ZodInputOrType<T> = SchemaInputOrType<T>;
 
 export type Merge<T, U> = Omit<T, keyof U> & U;
 
@@ -81,12 +87,12 @@ type NarrowRaw<T> =
   | (T extends string | number | bigint | boolean ? T : never)
   | (T extends [] ? [] : never)
   | {
-      [K in keyof T]: K extends 'description' ? T[K] : NarrowNotZod<T[K]>;
+      [K in keyof T]: K extends 'description' ? T[K] : NarrowNotSchema<T[K]>;
     };
 
-type NarrowNotZod<T> = Try<T, z.ZodType, NarrowRaw<T>>;
+type NarrowNotSchema<T> = Try<T, StandardSchemaV1, NarrowRaw<T>>;
 
-export type Narrow<T> = Try<T, [], NarrowNotZod<T>>;
+export type Narrow<T> = Try<T, [], NarrowNotSchema<T>>;
 
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 

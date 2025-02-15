@@ -4,10 +4,12 @@ import {
   HTTPStatusCode,
   initContract,
   OverrideableClientArgs,
+  ResponseValidationError,
 } from '..';
 import { ApiFetcherArgs, initClient } from './client';
 import { Equal, Expect } from './test-helpers';
-import { z, ZodError } from 'zod';
+import { z } from 'zod';
+import { ValidationError } from './validation-error';
 
 const c = initContract();
 
@@ -813,6 +815,9 @@ describe('client', () => {
       );
 
       await client.posts.getPost({
+        headers: {
+          'x-api-key': 'foo',
+        },
         params: { id: '1' },
         fetchOptions: {
           next: {
@@ -826,7 +831,9 @@ describe('client', () => {
         'http://localhost:5002/posts/1',
         {
           cache: undefined,
-          headers: {},
+          headers: {
+            'x-api-key': 'foo',
+          },
           body: undefined,
           credentials: undefined,
           method: 'GET',
@@ -904,10 +911,10 @@ type CustomClientGetPostType = Expect<
       params: {
         id: string;
       };
-      headers?: {
+      headers: {
         'x-test'?: string;
         'base-header'?: string;
-        'x-api-key'?: string;
+        'x-api-key': string;
       };
       extraHeaders?: {
         'x-test'?: never;
@@ -931,6 +938,9 @@ describe('custom api', () => {
   it('should allow a uploadProgress attribute on the api call', async () => {
     const uploadProgress = jest.fn();
     await customClient.posts.getPost({
+      headers: {
+        'x-api-key': 'string',
+      },
       params: { id: '1' },
       uploadProgress,
     });
@@ -948,6 +958,7 @@ describe('custom api', () => {
     await customClient.posts.getPost({
       params: { id: '1' },
       headers: {
+        'x-api-key': 'foo',
         'x-test': 'test',
       },
     });
@@ -955,6 +966,7 @@ describe('custom api', () => {
     expect(argsCalledMock).toBeCalledWith(
       expect.objectContaining({
         headers: {
+          'x-api-key': 'foo',
           'base-header': 'foo',
           'x-test': 'test',
         },
@@ -966,6 +978,7 @@ describe('custom api', () => {
     await customClient.posts.getPost({
       params: { id: '1' },
       headers: {
+        'x-api-key': 'foo',
         'base-header': 'bar',
       },
       extraHeaders: {
@@ -976,6 +989,7 @@ describe('custom api', () => {
     expect(argsCalledMock).toBeCalledWith(
       expect.objectContaining({
         headers: {
+          'x-api-key': 'foo',
           'base-header': 'bar',
           'content-type': 'application/html',
         },
@@ -1068,6 +1082,6 @@ describe('custom api', () => {
 
     await expect(
       client.posts.getPost({ params: { id: '1' } }),
-    ).rejects.toThrowError(ZodError);
+    ).rejects.toThrowError(ValidationError);
   });
 });

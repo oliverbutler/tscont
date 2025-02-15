@@ -71,6 +71,7 @@ describe('example-cloudflare-worker', () => {
       message: 'Request validation failed',
       bodyErrors: null,
       headerErrors: {
+        name: 'ValidationError',
         issues: [
           {
             code: 'invalid_type',
@@ -80,7 +81,6 @@ describe('example-cloudflare-worker', () => {
             received: 'nan',
           },
         ],
-        name: 'ZodError',
       },
       pathParameterErrors: null,
       queryParameterErrors: null,
@@ -103,6 +103,7 @@ describe('example-cloudflare-worker', () => {
       headerErrors: null,
       pathParameterErrors: null,
       queryParameterErrors: {
+        name: 'ValidationError',
         issues: [
           {
             code: 'invalid_type',
@@ -112,7 +113,6 @@ describe('example-cloudflare-worker', () => {
             received: 'undefined',
           },
         ],
-        name: 'ZodError',
       },
     });
   });
@@ -135,6 +135,7 @@ describe('example-cloudflare-worker', () => {
     expect(body).toEqual({
       message: 'Request validation failed',
       bodyErrors: {
+        name: 'ValidationError',
         issues: [
           {
             code: 'invalid_type',
@@ -144,7 +145,6 @@ describe('example-cloudflare-worker', () => {
             received: 'number',
           },
         ],
-        name: 'ZodError',
       },
       headerErrors: null,
       pathParameterErrors: null,
@@ -161,6 +161,7 @@ describe('example-cloudflare-worker', () => {
       message: 'Request validation failed',
       bodyErrors: null,
       headerErrors: {
+        name: 'ValidationError',
         issues: [
           {
             code: 'invalid_type',
@@ -170,7 +171,6 @@ describe('example-cloudflare-worker', () => {
             received: 'undefined',
           },
         ],
-        name: 'ZodError',
       },
       pathParameterErrors: null,
       queryParameterErrors: null,

@@ -1,7 +1,6 @@
 import {
   AppRoute,
   AppRouter,
-  checkZodSchema,
   isAppRoute,
   isAppRouteNoBody,
   isAppRouteOtherResponse,
@@ -10,6 +9,7 @@ import {
   validateResponse,
   HTTPStatusCode,
   TsRestResponseError,
+  checkStandardSchema,
 } from '@ts-rest/core';
 import { Router, withParams, cors } from 'itty-router';
 import { TsRestRequest } from './request';
@@ -72,7 +72,7 @@ const validateRequest = <TPlatformArgs, TRequestExtension>(
   schema: AppRoute,
   options: ServerlessHandlerOptions<TPlatformArgs, TRequestExtension>,
 ) => {
-  const paramsResult = checkZodSchema(req.params, schema.pathParams, {
+  const paramsResult = checkStandardSchema(req.params, schema.pathParams, {
     passThroughExtraKeys: true,
   });
 
@@ -81,33 +81,33 @@ const validateRequest = <TPlatformArgs, TRequestExtension>(
     headers[key] = value;
   });
 
-  const headersResult = checkZodSchema(headers, schema.headers, {
+  const headersResult = checkStandardSchema(headers, schema.headers, {
     passThroughExtraKeys: true,
   });
 
-  const queryResult = checkZodSchema(
+  const queryResult = checkStandardSchema(
     options.jsonQuery
       ? parseJsonQueryObject(req.query as Record<string, string>)
       : req.query,
     schema.query,
   );
 
-  const bodyResult = checkZodSchema(
+  const bodyResult = checkStandardSchema(
     req.content,
     'body' in schema ? schema.body : null,
   );
 
   if (
-    !paramsResult.success ||
-    !headersResult.success ||
-    !queryResult.success ||
-    !bodyResult.success
+    paramsResult.error ||
+    headersResult.error ||
+    queryResult.error ||
+    bodyResult.error
   ) {
     throw new RequestValidationError(
-      !paramsResult.success ? paramsResult.error : null,
-      !headersResult.success ? headersResult.error : null,
-      !queryResult.success ? queryResult.error : null,
-      !bodyResult.success ? bodyResult.error : null,
+      paramsResult.error || null,
+      headersResult.error || null,
+      queryResult.error || null,
+      bodyResult.error || null,
     );
   }
 
@@ -261,10 +261,10 @@ export const createServerlessRouter = <
         try {
           result = await implementation(
             {
-              params: validationResults.paramsResult.data as any,
-              body: validationResults.bodyResult.data as any,
-              query: validationResults.queryResult.data as any,
-              headers: validationResults.headersResult.data as any,
+              params: validationResults.paramsResult.value as any,
+              body: validationResults.bodyResult.value as any,
+              query: validationResults.queryResult.value as any,
+              headers: validationResults.headersResult.value as any,
             },
             {
               appRoute,

@@ -10,10 +10,10 @@ import {
 import {
   AppRoute,
   AppRouteMutation,
-  checkZodSchema,
+  checkStandardSchema,
   parseJsonQueryObject,
   ServerInferRequest,
-  zodErrorResponse,
+  validationErrorResponse,
 } from '@ts-rest/core';
 import type { Request } from 'express-serve-static-core';
 import type { FastifyRequest } from 'fastify';
@@ -48,47 +48,56 @@ class TsRestValidatorPipe implements PipeTransform {
     const req: Request | FastifyRequest = ctx.switchToHttp().getRequest();
     const options = evaluateTsRestOptions(this.globalOptions, ctx);
 
-    const pathParamsResult = checkZodSchema(req.params, appRoute.pathParams, {
-      passThroughExtraKeys: true,
-    });
+    const pathParamsResult = checkStandardSchema(
+      req.params,
+      appRoute.pathParams,
+      {
+        passThroughExtraKeys: true,
+      },
+    );
 
-    if (!pathParamsResult.success) {
-      throw new BadRequestException(zodErrorResponse(pathParamsResult.error));
+    if (pathParamsResult.error) {
+      throw new BadRequestException(
+        validationErrorResponse(pathParamsResult.error),
+      );
     }
 
-    const headersResult = checkZodSchema(req.headers, appRoute.headers, {
+    const headersResult = checkStandardSchema(req.headers, appRoute.headers, {
       passThroughExtraKeys: true,
     });
 
-    if (!headersResult.success && options.validateRequestHeaders) {
-      throw new BadRequestException(zodErrorResponse(headersResult.error));
+    if (headersResult.error && options.validateRequestHeaders) {
+      throw new BadRequestException(
+        validationErrorResponse(headersResult.error),
+      );
     }
 
     const query = options.jsonQuery
       ? parseJsonQueryObject(req.query as Record<string, string>)
       : req.query;
 
-    const queryResult = checkZodSchema(query, appRoute.query);
-    if (!queryResult.success && options.validateRequestQuery) {
-      throw new BadRequestException(zodErrorResponse(queryResult.error));
+    const queryResult = checkStandardSchema(query, appRoute.query);
+    if (queryResult.error && options.validateRequestQuery) {
+      throw new BadRequestException(validationErrorResponse(queryResult.error));
     }
 
-    const bodyResult = checkZodSchema(
+    const bodyResult = checkStandardSchema(
       req.body,
       (appRoute as AppRoute).method === 'GET' ? null : appRoute.body,
     );
 
-    if (!bodyResult.success && options.validateRequestBody) {
-      throw new BadRequestException(zodErrorResponse(bodyResult.error));
+    if (bodyResult.error && options.validateRequestBody) {
+      throw new BadRequestException(validationErrorResponse(bodyResult.error));
     }
 
     return {
-      query: queryResult.success ? queryResult.data : req.query,
-      params: pathParamsResult.data as any,
-      body: bodyResult.success ? bodyResult.data : req.body,
-      headers: headersResult.success
-        ? (headersResult.data as TsRestRequestShape<typeof appRoute>['headers'])
-        : req.headers,
+      query: queryResult.value || req.query,
+      params: pathParamsResult.value as any,
+      body: bodyResult.value || req.body,
+      headers:
+        (headersResult.value as TsRestRequestShape<
+          typeof appRoute
+        >['headers']) || req.headers,
     };
   }
 }

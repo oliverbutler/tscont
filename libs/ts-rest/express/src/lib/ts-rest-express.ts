@@ -1,7 +1,7 @@
 import {
   AppRoute,
   AppRouter,
-  checkZodSchema,
+  checkStandardSchema,
   HTTPStatusCode,
   isAppRoute,
   isAppRouteNoBody,
@@ -89,11 +89,11 @@ const validateRequest = (
   schema: AppRoute,
   options: TsRestExpressOptions<AppRouter>,
 ) => {
-  const paramsResult = checkZodSchema(req.params, schema.pathParams, {
+  const paramsResult = checkStandardSchema(req.params, schema.pathParams, {
     passThroughExtraKeys: true,
   });
 
-  const headersResult = checkZodSchema(req.headers, schema.headers, {
+  const headersResult = checkStandardSchema(req.headers, schema.headers, {
     passThroughExtraKeys: true,
   });
 
@@ -101,24 +101,24 @@ const validateRequest = (
     ? parseJsonQueryObject(req.query as Record<string, string>)
     : req.query;
 
-  const queryResult = checkZodSchema(query, schema.query);
+  const queryResult = checkStandardSchema(query, schema.query);
 
-  const bodyResult = checkZodSchema(
+  const bodyResult = checkStandardSchema(
     req.body,
     'body' in schema ? schema.body : null,
   );
 
   if (
-    !paramsResult.success ||
-    !headersResult.success ||
-    !queryResult.success ||
-    !bodyResult.success
+    paramsResult.error ||
+    headersResult.error ||
+    queryResult.error ||
+    bodyResult.error
   ) {
     throw new RequestValidationError(
-      !paramsResult.success ? paramsResult.error : null,
-      !headersResult.success ? headersResult.error : null,
-      !queryResult.success ? queryResult.error : null,
-      !bodyResult.success ? bodyResult.error : null,
+      paramsResult.error || null,
+      headersResult.error || null,
+      queryResult.error || null,
+      bodyResult.error || null,
     );
   }
 
@@ -156,10 +156,10 @@ const initializeExpressRoute = ({
       let result: { status: HTTPStatusCode; body: any };
       try {
         result = await handler({
-          params: validationResults.paramsResult.data as any,
-          body: validationResults.bodyResult.data as any,
-          query: validationResults.queryResult.data,
-          headers: validationResults.headersResult.data as any,
+          params: validationResults.paramsResult.value as any,
+          body: validationResults.bodyResult.value as any,
+          query: validationResults.queryResult.value,
+          headers: validationResults.headersResult.value as any,
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           files: req.files,

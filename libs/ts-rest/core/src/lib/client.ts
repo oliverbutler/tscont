@@ -8,8 +8,8 @@ import {
   ClientInferResponses,
   PartialClientInferRequest,
 } from './infer-types';
-import { isZodType } from './zod-utils';
 import { Equal, Expect } from './test-helpers';
+import { isStandardSchema, parseStandardSchema } from './standard-schema-utils';
 
 type RecursiveProxyObj<T extends AppRouter, TClientArgs extends ClientArgs> = {
   [TKey in keyof T]: T[TKey] extends AppRoute
@@ -137,11 +137,11 @@ export const tsRestFetchApi: ApiFetcher = async ({
     const responseSchema = route.responses[response.status];
     if (
       (validateResponse ?? route.validateResponseOnClient) &&
-      isZodType(responseSchema)
+      isStandardSchema(responseSchema)
     ) {
       return {
         ...response,
-        body: responseSchema.parse(response.body),
+        body: parseStandardSchema(response.body, responseSchema),
       };
     }
 

@@ -20,7 +20,7 @@
   "license": "MIT",
   "peerDependencies": {
     "@types/node": "^18.18.7 || >=20.8.4",
-    "zod": "^3.22.3"
+    "zod": "^3.24.0"
   },
   "peerDependenciesMeta": {
     "@types/node": {

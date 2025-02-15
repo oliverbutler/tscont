@@ -289,7 +289,7 @@ describe('tsRestAzureFunction', () => {
 
     const expectedResponse = new HttpResponse({
       status: 400,
-      body: '{"message":"Request validation failed","pathParameterErrors":null,"headerErrors":null,"queryParameterErrors":{"issues":[{"code":"invalid_type","expected":"string","received":"undefined","path":["foo"],"message":"Required"}],"name":"ZodError"},"bodyErrors":null}',
+      body: '{"message":"Request validation failed","pathParameterErrors":null,"headerErrors":null,"queryParameterErrors":{"name":"ValidationError","issues":[{"code":"invalid_type","expected":"string","received":"undefined","path":["foo"],"message":"Required"}]},"bodyErrors":null}',
       headers: {
         'access-control-allow-credentials': 'true',
         'access-control-allow-origin': 'http://localhost',

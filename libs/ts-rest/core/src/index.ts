@@ -11,3 +11,5 @@ export * from './lib/unknown-status-error';
 export * from './lib/infer-types';
 export * from './lib/response-error';
 export * from './lib/type-guards';
+export * from './lib/standard-schema-utils';
+export * from './lib/validation-error';

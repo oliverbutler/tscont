@@ -3,7 +3,7 @@ import {
   AppRoute,
   AppRouteQuery,
   AppRouter,
-  checkZodSchema,
+  checkStandardSchema,
   HTTPStatusCode,
   isAppRoute,
   isAppRouteNoBody,
@@ -13,23 +13,24 @@ import {
   ServerInferResponses,
   TsRestResponseError,
   validateResponse,
-  ZodErrorSchema,
+  ValidationError,
+  ValidationErrorSchema,
 } from '@ts-rest/core';
 import { getPathParamsFromArray } from './path-utils';
-import { z } from 'zod';
 
 export class RequestValidationError extends Error {
   constructor(
-    public pathParams: z.ZodError | null,
-    public headers: z.ZodError | null,
-    public query: z.ZodError | null,
-    public body: z.ZodError | null,
+    public pathParams: ValidationError | null,
+    public headers: ValidationError | null,
+    public query: ValidationError | null,
+    public body: ValidationError | null,
   ) {
     super('[ts-rest] request validation failed');
   }
 }
 
-export const RequestValidationErrorSchema = ZodErrorSchema;
+export const RequestValidationErrorSchema: typeof ValidationErrorSchema =
+  ValidationErrorSchema;
 
 type AppRouteImplementation<T extends AppRoute> = (
   args: ServerInferRequest<T, NextApiRequest['headers']> & {
@@ -291,11 +292,11 @@ const handlerFactory = (
       return;
     }
 
-    const pathParamsResult = checkZodSchema(pathParams, route.pathParams, {
+    const pathParamsResult = checkStandardSchema(pathParams, route.pathParams, {
       passThroughExtraKeys: true,
     });
 
-    const headersResult = checkZodSchema(req.headers, route.headers, {
+    const headersResult = checkStandardSchema(req.headers, route.headers, {
       passThroughExtraKeys: true,
     });
 
@@ -303,36 +304,36 @@ const handlerFactory = (
       ? parseJsonQueryObject(query as Record<string, string>)
       : req.query;
 
-    const queryResult = checkZodSchema(query, route.query);
+    const queryResult = checkStandardSchema(query, route.query);
 
-    const bodyResult = checkZodSchema(req.body, route.body);
+    const bodyResult = checkStandardSchema(req.body, route.body);
 
     try {
       if (
-        !pathParamsResult.success ||
-        !headersResult.success ||
-        !queryResult.success ||
-        !bodyResult.success
+        pathParamsResult.error ||
+        headersResult.error ||
+        queryResult.error ||
+        bodyResult.error
       ) {
         if (throwRequestValidation) {
           throw new RequestValidationError(
-            pathParamsResult.success ? null : pathParamsResult.error,
-            headersResult.success ? null : headersResult.error,
-            queryResult.success ? null : queryResult.error,
-            bodyResult.success ? null : bodyResult.error,
+            pathParamsResult.error || null,
+            headersResult.error || null,
+            queryResult.error || null,
+            bodyResult.error || null,
           );
         }
 
-        if (!pathParamsResult.success) {
+        if (pathParamsResult.error) {
           return res.status(400).json(pathParamsResult.error);
         }
-        if (!headersResult.success) {
+        if (headersResult.error) {
           return res.status(400).send(headersResult.error);
         }
-        if (!queryResult.success) {
+        if (queryResult.error) {
           return res.status(400).json(queryResult.error);
         }
-        if (!bodyResult.success) {
+        if (bodyResult.error) {
           return res.status(400).json(bodyResult.error);
         }
       }
@@ -340,10 +341,10 @@ const handlerFactory = (
       let result: { status: HTTPStatusCode; body: any };
       try {
         result = await route.implementation({
-          body: bodyResult.data,
-          query: queryResult.data,
-          params: pathParamsResult.data,
-          headers: headersResult.data,
+          body: bodyResult.value,
+          query: queryResult.value,
+          params: pathParamsResult.value,
+          headers: headersResult.value,
           req,
           res,
         });

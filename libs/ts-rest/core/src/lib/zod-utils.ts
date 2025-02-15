@@ -54,6 +54,7 @@ export const zodMerge = (objectA: unknown, objectB: unknown) => {
   return Object.assign({}, objectA, objectB);
 };
 
+/** @deprecated use checkStandardSchema */
 export const checkZodSchema = (
   data: unknown,
   schema: unknown,
