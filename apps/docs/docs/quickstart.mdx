@@ -171,7 +171,11 @@ If you were to change the `body` return type to `{ body: true }` for example, th
 ```typescript
 // main.ts
 
-import { initServer } from '@ts-rest/express';
+import { createExpressEndpoints, initServer } from '@ts-rest/express';
+import * as bodyParser from 'body-parser';
+import cors from 'cors';
+import express from 'express';
+
 const app = express();
 
 app.use(cors());
